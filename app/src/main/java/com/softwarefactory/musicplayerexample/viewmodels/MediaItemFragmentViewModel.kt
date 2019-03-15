@@ -1,5 +1,3 @@
-
-
 package com.softwarefactory.musicplayerexample.viewmodels
 
 import android.support.v4.media.MediaBrowserCompat.MediaItem
@@ -12,17 +10,11 @@ import com.softwarefactory.mmedia.extensions.isPlaying
 import com.softwarefactory.musicplayerexample.*
 import com.softwarefactory.musicplayerexample.R
 
-/**
- * [ViewModel] for [MediaItemFragment].
- */
+
 class MediaItemFragmentViewModel(private val mediaId: String,
                                  mediaSessionConnection: MediaSessionConnection
 ) : ViewModel() {
 
-    /**
-     * Use a backing property so consumers of mediaItems only get a [LiveData] instance so
-     * they don't inadvertently modify it.
-     */
     private val _mediaItems = MutableLiveData<List<MediaItemData>>()
             .apply { postValue(emptyList()) }
     val mediaItems: LiveData<List<MediaItemData>> = _mediaItems
@@ -60,13 +52,6 @@ class MediaItemFragmentViewModel(private val mediaId: String,
         it.nowPlaying.observeForever(mediaMetadataObserver)
     }
 
-    /**
-     * Since we use [LiveData.observeForever] above (in [mediaSessionConnection]), we want
-     * to call [LiveData.removeObserver] here to prevent leaking resources when the [ViewModel]
-     * is not longer in use.
-     *
-     * For more details, see the kdoc on [mediaSessionConnection] above.
-     */
     override fun onCleared() {
         super.onCleared()
 

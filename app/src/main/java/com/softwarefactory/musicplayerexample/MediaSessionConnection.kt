@@ -1,4 +1,3 @@
-
 package com.softwarefactory.musicplayerexample
 
 import androidx.lifecycle.MutableLiveData
@@ -43,10 +42,7 @@ class MediaSessionConnection(context: Context, serviceComponent: ComponentName) 
 
     private inner class MediaBrowserConnectionCallback(private val context: Context)
         : MediaBrowserCompat.ConnectionCallback() {
-        /**
-         * Invoked after [MediaBrowserCompat.connect] when the request has successfully
-         * completed.
-         */
+
         override fun onConnected() {
             // Get a MediaController for the MediaSession.
             mediaController = MediaControllerCompat(context, mediaBrowser.sessionToken).apply {
@@ -56,16 +52,11 @@ class MediaSessionConnection(context: Context, serviceComponent: ComponentName) 
             isConnected.postValue(true)
         }
 
-        /**
-         * Invoked when the client is disconnected from the media browser.
-         */
         override fun onConnectionSuspended() {
             isConnected.postValue(false)
         }
 
-        /**
-         * Invoked when the connection to the media browser failed.
-         */
+
         override fun onConnectionFailed() {
             isConnected.postValue(false)
         }
@@ -84,12 +75,6 @@ class MediaSessionConnection(context: Context, serviceComponent: ComponentName) 
         override fun onQueueChanged(queue: MutableList<MediaSessionCompat.QueueItem>?) {
         }
 
-        /**
-         * Normally if a [MediaBrowserServiceCompat] drops its connection the callback comes via
-         * [MediaControllerCompat.Callback] (here). But since other connection status events
-         * are sent to [MediaBrowserCompat.ConnectionCallback], we catch the disconnect here and
-         * send it on to the other callback.
-         */
         override fun onSessionDestroyed() {
             mediaBrowserConnectionCallback.onConnectionSuspended()
         }

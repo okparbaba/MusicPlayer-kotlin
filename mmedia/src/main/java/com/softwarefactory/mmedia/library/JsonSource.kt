@@ -1,19 +1,3 @@
-/*
- * Copyright 2017 Google Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.softwarefactory.mmedia.library
 
 import android.content.Context
@@ -123,12 +107,7 @@ private class UpdateCatalogTask(val glide: RequestManager,
         listener(mediaItems)
     }
 
-    /**
-     * Attempts to download a catalog from a given Uri.
-     *
-     * @param catalogUri URI to attempt to download the catalog form.
-     * @return The catalog downloaded, or an empty catalog if an error occurred.
-     */
+
     private fun tryDownloadJson(catalogUri: Uri) =
         try {
             val catalogConn = URL(catalogUri.toString())
@@ -139,10 +118,6 @@ private class UpdateCatalogTask(val glide: RequestManager,
         }
 }
 
-/**
- * Extension method for [MediaMetadataCompat.Builder] to set the fields from
- * our JSON constructed object (to make the code a bit easier to see).
- */
 fun MediaMetadataCompat.Builder.from(jsonMusic: JsonMusic): MediaMetadataCompat.Builder {
     // The duration from the JSON is given in seconds, but the rest of the code works in
     // milliseconds. Here's where we convert to the proper units.
@@ -175,44 +150,11 @@ fun MediaMetadataCompat.Builder.from(jsonMusic: JsonMusic): MediaMetadataCompat.
     return this
 }
 
-/**
- * Wrapper object for our JSON in order to be processed easily by GSON.
- */
 class JsonCatalog {
     var music: List<JsonMusic> = ArrayList()
 }
 
-/**
- * An individual piece of music included in our JSON catalog.
- * The format from the server is as specified:
- * ```
- *     { "music" : [
- *     { "title" : // Title of the piece of music
- *     "album" : // Album title of the piece of music
- *     "artist" : // Artist of the piece of music
- *     "genre" : // Primary genre of the music
- *     "source" : // Path to the music, which may be relative
- *     "image" : // Path to the art for the music, which may be relative
- *     "trackNumber" : // Track number
- *     "totalTrackCount" : // Track count
- *     "duration" : // Duration of the music in seconds
- *     "site" : // Source of the music, if applicable
- *     }
- *     ]}
- * ```
- *
- * `source` and `image` can be provided in either relative or
- * absolute paths. For example:
- * ``
- *     "source" : "https://www.example.com/music/ode_to_joy.mp3",
- *     "image" : "ode_to_joy.jpg"
- * ``
- *
- * The `source` specifies the full URI to download the piece of music from, but
- * `image` will be fetched relative to the path of the JSON file itself. This means
- * that if the JSON was at "https://www.example.com/json/music.json" then the image would be found
- * at "https://www.example.com/json/ode_to_joy.jpg".
- */
+
 class JsonMusic {
     var id: String = ""
     var title: String = ""

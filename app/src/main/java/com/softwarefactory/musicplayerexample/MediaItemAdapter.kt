@@ -1,4 +1,3 @@
-
 package com.softwarefactory.musicplayerexample
 
 import androidx.recyclerview.widget.ListAdapter
@@ -15,9 +14,6 @@ import kotlinx.android.synthetic.main.fragment_mediaitem.view.item_state
 import kotlinx.android.synthetic.main.fragment_mediaitem.view.subtitle
 import kotlinx.android.synthetic.main.fragment_mediaitem.view.title
 
-/**
- * [RecyclerView.Adapter] of [MediaItemData]s used by the [MediaItemFragment].
- */
 class MediaItemAdapter(private val itemClickedListener: (MediaItemData) -> Unit
 ) : ListAdapter<MediaItemData, MediaViewHolder>(MediaItemData.diffCallback) {
 

@@ -1,19 +1,3 @@
-/*
- * Copyright 2017 Google Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.softwarefactory.mmedia
 
 import android.app.PendingIntent
@@ -52,17 +36,6 @@ import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 
-/**
- * This class is the entry point for browsing and playback commands from the APP's UI
- * and other apps that wish to play music via UAMP (for example, Android Auto or
- * the Google Assistant).
- *
- * Browsing begins with the method [MusicService.onGetRoot], and continues in
- * the callback [MusicService.onLoadChildren].
- *
- * For more information on implementing a MediaBrowserService,
- * visit [https://developer.android.com/guide/topics/media-apps/audio-app/building-a-mediabrowserservice.html](https://developer.android.com/guide/topics/media-apps/audio-app/building-a-mediabrowserservice.html).
- */
 class MusicService : androidx.media.MediaBrowserServiceCompat() {
     private lateinit var mediaSession: MediaSessionCompat
     private lateinit var mediaController: MediaControllerCompat
@@ -73,11 +46,6 @@ class MusicService : androidx.media.MediaBrowserServiceCompat() {
     private lateinit var mediaSessionConnector: MediaSessionConnector
     private lateinit var packageValidator: PackageValidator
 
-    /**
-     * This must be `by lazy` because the source won't initially be ready.
-     * See [MusicService.onLoadChildren] to see where it's accessed (and first
-     * constructed).
-     */
     private val browseTree: BrowseTree by lazy {
         BrowseTree(mediaSource)
     }
@@ -112,16 +80,6 @@ class MusicService : androidx.media.MediaBrowserServiceCompat() {
                     setSessionActivity(sessionActivityPendingIntent)
                     isActive = true
                 }
-
-        /**
-         * In order for [MediaBrowserCompat.ConnectionCallback.onConnected] to be called,
-         * a [MediaSessionCompat.Token] needs to be set on the [MediaBrowserServiceCompat].
-         *
-         * It is possible to wait to set the session token, if required for a specific use-case.
-         * However, the token *must* be set by the time [MediaBrowserServiceCompat.onGetRoot]
-         * returns, or the connection will fail silently. (The system will not even call
-         * [MediaBrowserCompat.ConnectionCallback.onConnectionFailed].)
-         */
         sessionToken = mediaSession.sessionToken
 
         // Because ExoPlayer will manage the MediaSession, add the service as a callback for
@@ -157,21 +115,9 @@ class MusicService : androidx.media.MediaBrowserServiceCompat() {
         packageValidator = PackageValidator(this, R.xml.allowed_media_browser_callers)
     }
 
-    /**
-     * This is the code that causes UAMP to stop playing when swiping it away from recents.
-     * The choice to do this is app specific. Some apps stop playback, while others allow playback
-     * to continue and allow uses to stop it with the notification.
-     */
     override fun onTaskRemoved(rootIntent: Intent) {
         super.onTaskRemoved(rootIntent)
 
-        /**
-         * By stopping playback, the player will transition to [Player.STATE_IDLE]. This will
-         * cause a state change in the MediaSession, and (most importantly) call
-         * [MediaControllerCallback.onPlaybackStateChanged]. Because the playback state will
-         * be reported as [PlaybackStateCompat.STATE_NONE], the service will first remove
-         * itself as a foreground service, and will then call [stopSelf].
-         */
         exoPlayer.stop(true)
     }
 
@@ -182,10 +128,6 @@ class MusicService : androidx.media.MediaBrowserServiceCompat() {
         }
     }
 
-    /**
-     * Returns the "root" media ID that the client should request to get the list of
-     * [MediaItem]s to browse/play.
-     */
     override fun onGetRoot(clientPackageName: String,
                            clientUid: Int,
                            rootHints: Bundle?): BrowserRoot? {
@@ -194,24 +136,11 @@ class MusicService : androidx.media.MediaBrowserServiceCompat() {
             // The caller is allowed to browse, so return the root.
             BrowserRoot(UAMP_BROWSABLE_ROOT, null)
         } else {
-            /**
-             * Unknown caller. There are two main ways to handle this:
-             * 1) Return a root without any content, which still allows the connecting client
-             * to issue commands.
-             * 2) Return `null`, which will cause the system to disconnect the app.
-             *
-             * UAMP takes the first approach for a variety of reasons, but both are valid
-             * options.
-             */
+
             BrowserRoot(UAMP_EMPTY_ROOT, null)
         }
     }
 
-    /**
-     * Returns (via the [result] parameter) a list of [MediaItem]s that are child
-     * items of the provided [parentMediaId]. See [BrowseTree] for more details on
-     * how this is build/more details about the relationships.
-     */
     override fun onLoadChildren(
             parentMediaId: String,
             result: androidx.media.MediaBrowserServiceCompat.Result<List<MediaItem>>) {
@@ -239,34 +168,10 @@ class MusicService : androidx.media.MediaBrowserServiceCompat() {
         }
     }
 
-    /**
-     * Removes the [NOW_PLAYING_NOTIFICATION] notification.
-     *
-     * Since `stopForeground(false)` was already called (see
-     * [MediaControllerCallback.onPlaybackStateChanged], it's possible to cancel the notification
-     * with `notificationManager.cancel(NOW_PLAYING_NOTIFICATION)` if minSdkVersion is >=
-     * [Build.VERSION_CODES.LOLLIPOP].
-     *
-     * Prior to [Build.VERSION_CODES.LOLLIPOP], notifications associated with a foreground
-     * service remained marked as "ongoing" even after calling [Service.stopForeground],
-     * and cannot be cancelled normally.
-     *
-     * Fortunately, it's possible to simply call [Service.stopForeground] a second time, this
-     * time with `true`. This won't change anything about the service's state, but will simply
-     * remove the notification.
-     */
     private fun removeNowPlayingNotification() {
         stopForeground(true)
     }
 
-    /**
-     * Class to receive callbacks about state changes to the [MediaSessionCompat]. In response
-     * to those callbacks, this class:
-     *
-     * - Build/update the service's notification.
-     * - Register/unregister a broadcast receiver for [AudioManager.ACTION_AUDIO_BECOMING_NOISY].
-     * - Calls [Service.startForeground] and [Service.stopForeground].
-     */
     private inner class MediaControllerCallback : MediaControllerCompat.Callback() {
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
             mediaController.playbackState?.let { updateNotification(it) }
@@ -294,11 +199,6 @@ class MusicService : androidx.media.MediaBrowserServiceCompat() {
                 PlaybackStateCompat.STATE_PLAYING -> {
                     becomingNoisyReceiver.register()
 
-                    /**
-                     * This may look strange, but the documentation for [Service.startForeground]
-                     * notes that "calling this method does *not* put the service in the started
-                     * state itself, even though the name sounds like it."
-                     */
                     if (!isForegroundService) {
                         startService(Intent(applicationContext, this@MusicService.javaClass))
                         startForeground(NOW_PLAYING_NOTIFICATION, notification)
@@ -331,10 +231,7 @@ class MusicService : androidx.media.MediaBrowserServiceCompat() {
     }
 }
 
-/**
- * Helper class to retrieve the the Metadata necessary for the ExoPlayer MediaSession connection
- * extension to call [MediaSessionCompat.setMetadata].
- */
+
 private class UampQueueNavigator(
         mediaSession: MediaSessionCompat
 ) : TimelineQueueNavigator(mediaSession) {
@@ -344,10 +241,6 @@ private class UampQueueNavigator(
                     .getWindow(windowIndex, window, true).tag as MediaDescriptionCompat
 }
 
-/**
- * Helper class for listening for when headphones are unplugged (or the audio
- * will otherwise cause playback to become "noisy").
- */
 private class BecomingNoisyReceiver(private val context: Context,
                                     sessionToken: MediaSessionCompat.Token)
     : BroadcastReceiver() {

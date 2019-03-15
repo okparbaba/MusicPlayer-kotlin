@@ -1,19 +1,3 @@
-/*
- * Copyright 2018 Google Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.softwarefactory.mmedia
 
 import android.Manifest.permission.BIND_NOTIFICATION_LISTENER_SERVICE
@@ -35,18 +19,6 @@ import java.io.IOException
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 
-/**
- * Validates that the calling package is authorized to browse a [MediaBrowserServiceCompat].
- *
- * The list of allowed signing certificates and their corresponding package names is defined in
- * res/xml/allowed_media_browser_callers.xml.
- *
- * If you want to add a new caller to allowed_media_browser_callers.xml and you don't know
- * its signature, this class will print to logcat (INFO level) a message with the proper
- * xml tags to add to allow the caller.
- *
- * For more information, see res/xml/allowed_media_browser_callers.xml.
- */
 class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
     private val context: Context
     private val packageManager: PackageManager
@@ -65,14 +37,6 @@ class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
         platformSignature = getSystemSignature()
     }
 
-    /**
-     * Checks whether the caller attempting to connect to a [MediaBrowserServiceCompat] is known.
-     * See [MusicService.onGetRoot] for where this is utilized.
-     *
-     * @param callingPackage The package name of the caller.
-     * @param callingUid The user id of the caller.
-     * @return `true` if the caller is known, `false` otherwise.
-     */
     fun isKnownCaller(callingPackage: String, callingUid: Int): Boolean {
         // If the caller has already been checked, return the previous result here.
         val (checkedUid, checkResult) = callerChecked[callingPackage] ?: Pair(0, false)
@@ -80,18 +44,6 @@ class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
             return checkResult
         }
 
-        /**
-         * Because some of these checks can be slow, we save the results in [callerChecked] after
-         * this code is run.
-         *
-         * In particular, there's little reason to recompute the calling package's certificate
-         * signature (SHA-256) each call.
-         *
-         * This is safe to do as we know the UID matches the package's UID (from the check above),
-         * and app UIDs are set at install time. Additionally, a package name + UID is guaranteed to
-         * be constant until a reboot. (After a reboot then a previously assigned UID could be
-         * reassigned.)
-         */
 
         // Build the caller info for the rest of the checks here.
         val callerPackageInfo = buildCallerInfo(callingPackage)
@@ -116,21 +68,9 @@ class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
             callingUid == Process.SYSTEM_UID -> true
             // If the app was signed by the same certificate as the platform itself, also allow it.
             callerSignature == platformSignature -> true
-            /**
-             * [MEDIA_CONTENT_CONTROL] permission is only available to system applications, and
-             * while it isn't required to allow these apps to connect to a
-             * [MediaBrowserServiceCompat], allowing this ensures optimal compatability with apps
-             * such as Android TV and the Google Assistant.
-             */
+
             callerPackageInfo.permissions.contains(MEDIA_CONTENT_CONTROL) -> true
-            /**
-             * This last permission can be specifically granted to apps, and, in addition to
-             * allowing them to retrieve notifications, it also allows them to connect to an
-             * active [MediaSessionCompat].
-             * As with the above, it's not required to allow apps holding this permission to
-             * connect to your [MediaBrowserServiceCompat], but it does allow easy comparability
-             * with apps such as Wear OS.
-             */
+
             callerPackageInfo.permissions.contains(BIND_NOTIFICATION_LISTENER_SERVICE) -> true
             // If none of the pervious checks succeeded, then the caller is unrecognized.
             else -> false
@@ -145,10 +85,6 @@ class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
         return isCallerKnown
     }
 
-    /**
-     * Logs an info level message with details of how to add a caller to the allowed callers list
-     * when the app is debuggable.
-     */
     private fun logUnknownCaller(callerPackageInfo: CallerPackageInfo) {
         if (BuildConfig.DEBUG && callerPackageInfo.signature != null) {
             val formattedLog =
@@ -161,11 +97,6 @@ class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
         }
     }
 
-    /**
-     * Builds a [CallerPackageInfo] for a given package that can be used for all the
-     * various checks that are performed before allowing an app to connect to a
-     * [MediaBrowserServiceCompat].
-     */
     private fun buildCallerInfo(callingPackage: String): CallerPackageInfo? {
         val packageInfo = getPackageInfo(callingPackage) ?: return null
 
@@ -185,27 +116,11 @@ class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
         return CallerPackageInfo(appName, callingPackage, uid, signature, activePermissions.toSet())
     }
 
-    /**
-     * Looks up the [PackageInfo] for a package name.
-     * This requests both the signatures (for checking if an app is on the whitelist) and
-     * the app's permissions, which allow for more flexibility in the whitelist.
-     *
-     * @return [PackageInfo] for the package name or null if it's not found.
-     */
     @SuppressLint("PackageManagerGetSignatures")
     private fun getPackageInfo(callingPackage: String): PackageInfo? =
             packageManager.getPackageInfo(callingPackage,
                     PackageManager.GET_SIGNATURES or PackageManager.GET_PERMISSIONS)
 
-    /**
-     * Gets the signature of a given package's [PackageInfo].
-     *
-     * The "signature" is a SHA-256 hash of the public key of the signing certificate used by
-     * the app.
-     *
-     * If the app is not found, or if the app does not have exactly one signature, this method
-     * returns `null` as the signature.
-     */
     private fun getSignature(packageInfo: PackageInfo): String? {
         // Security best practices dictate that an app should be signed with exactly one (1)
         // signature. Because of this, if there are multiple signatures, reject it.

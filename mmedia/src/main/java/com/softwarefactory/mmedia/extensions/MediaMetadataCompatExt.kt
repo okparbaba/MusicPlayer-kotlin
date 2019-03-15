@@ -1,6 +1,7 @@
 
 package com.softwarefactory.mmedia.extensions
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.net.Uri
 import android.support.v4.media.MediaBrowserCompat.MediaItem
@@ -34,7 +35,8 @@ inline val MediaMetadataCompat.compilation
 
 inline val MediaMetadataCompat.date get() = getString(MediaMetadataCompat.METADATA_KEY_DATE)
 
-inline val MediaMetadataCompat.year get() = getString(MediaMetadataCompat.METADATA_KEY_YEAR)
+inline val MediaMetadataCompat.year @SuppressLint("WrongConstant")
+get() = getString(MediaMetadataCompat.METADATA_KEY_YEAR)
 
 inline val MediaMetadataCompat.genre get() = getString(MediaMetadataCompat.METADATA_KEY_GENRE)
 
@@ -62,9 +64,11 @@ inline val MediaMetadataCompat.albumArtUri
     get() = Uri.parse(this.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI))
 
 inline val MediaMetadataCompat.userRating
+    @SuppressLint("WrongConstant")
     get() = getLong(MediaMetadataCompat.METADATA_KEY_USER_RATING)
 
-inline val MediaMetadataCompat.rating get() = getLong(MediaMetadataCompat.METADATA_KEY_RATING)
+inline val MediaMetadataCompat.rating @SuppressLint("WrongConstant")
+get() = getLong(MediaMetadataCompat.METADATA_KEY_RATING)
 
 inline val MediaMetadataCompat.displayTitle
     get() = getString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE)
@@ -93,6 +97,7 @@ inline val MediaMetadataCompat.downloadStatus
  */
 @MediaItem.Flags
 inline val MediaMetadataCompat.flag
+    @SuppressLint("WrongConstant")
     get() = this.getLong(METADATA_KEY_UAMP_FLAGS).toInt()
 
 /**
@@ -222,6 +227,7 @@ inline var MediaMetadataCompat.Builder.downloadStatus: Long
 inline var MediaMetadataCompat.Builder.flag: Int
     @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
     get() = throw IllegalAccessException("Cannot get from MediaMetadataCompat.Builder")
+    @SuppressLint("WrongConstant")
     set(value) {
         putLong(METADATA_KEY_UAMP_FLAGS, value.toLong())
     }
