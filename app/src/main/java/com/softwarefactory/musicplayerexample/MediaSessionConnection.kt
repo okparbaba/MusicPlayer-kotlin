@@ -1,15 +1,13 @@
 package com.softwarefactory.musicplayerexample
 
-import androidx.lifecycle.MutableLiveData
 import android.content.ComponentName
 import android.content.Context
 import android.support.v4.media.MediaBrowserCompat
-import androidx.media.MediaBrowserServiceCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import com.softwarefactory.musicplayerexample.utils.InjectorUtils
+import androidx.lifecycle.MutableLiveData
 
 class MediaSessionConnection(context: Context, serviceComponent: ComponentName) {
     val isConnected = MutableLiveData<Boolean>()

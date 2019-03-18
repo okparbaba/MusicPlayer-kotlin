@@ -3,16 +3,10 @@ package com.softwarefactory.mmedia.library
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import androidx.annotation.IntDef
 import android.support.v4.media.MediaMetadataCompat
 import android.util.Log
-import com.softwarefactory.mmedia.MusicService
-import com.softwarefactory.mmedia.extensions.album
-import com.softwarefactory.mmedia.extensions.albumArtist
-import com.softwarefactory.mmedia.extensions.artist
-import com.softwarefactory.mmedia.extensions.containsCaseInsensitive
-import com.softwarefactory.mmedia.extensions.genre
-import com.softwarefactory.mmedia.extensions.title
+import androidx.annotation.IntDef
+import com.softwarefactory.mmedia.extensions.*
 
 interface MusicSource : Iterable<MediaMetadataCompat> {
     fun whenReady(performAction: (Boolean) -> Unit): Boolean
@@ -136,10 +130,6 @@ abstract class AbstractMusicSource : MusicSource {
         }
     }
 
-    /**
-     * [MediaStore.EXTRA_MEDIA_GENRE] is missing on API 19. Hide this fact by using our
-     * own version of it.
-     */
     private val EXTRA_MEDIA_GENRE
         get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             MediaStore.EXTRA_MEDIA_GENRE

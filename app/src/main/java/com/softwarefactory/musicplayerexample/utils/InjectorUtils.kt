@@ -7,9 +7,6 @@ import com.softwarefactory.musicplayerexample.viewmodels.MediaItemFragmentViewMo
 import com.softwarefactory.musicplayerexample.MediaSessionConnection
 import com.softwarefactory.musicplayerexample.viewmodels.MainActivityViewModel
 
-/**
- * Static methods used to inject classes needed for various Activities and Fragments.
- */
 object InjectorUtils {
     private fun provideMediaSessionConnection(context: Context): MediaSessionConnection {
         return MediaSessionConnection.getInstance(context,

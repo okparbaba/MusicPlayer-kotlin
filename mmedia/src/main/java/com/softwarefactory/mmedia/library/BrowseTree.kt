@@ -15,14 +15,6 @@ import com.softwarefactory.mmedia.extensions.urlEncoded
 class BrowseTree(musicSource: MusicSource) {
     private val mediaIdToChildren = mutableMapOf<String, MutableList<MediaMetadataCompat>>()
 
-    /**
-     * In this example, there's a single root node (identified by the constant
-     * [UAMP_BROWSABLE_ROOT]). The root's children are each album included in the
-     * [MusicSource], and the children of each album are the songs on that album.
-     * (See [BrowseTree.buildAlbumRoot] for more details.)
-     *
-     * TODO: Expand to allow more browsing types.
-     */
     init {
         musicSource.forEach { mediaItem ->
             val albumMediaId = mediaItem.album.urlEncoded
@@ -31,18 +23,8 @@ class BrowseTree(musicSource: MusicSource) {
         }
     }
 
-    /**
-     * Provide access to the list of children with the `get` operator.
-     * i.e.: `browseTree\[UAMP_BROWSABLE_ROOT\]`
-     */
     operator fun get(mediaId: String) = mediaIdToChildren[mediaId]
 
-    /**
-     * Builds a node, under the root, that represents an album, given
-     * a [MediaMetadataCompat] object that's one of the songs on that album,
-     * marking the item as [MediaItem.FLAG_BROWSABLE], since it will have child
-     * node(s) AKA at least 1 song.
-     */
     private fun buildAlbumRoot(mediaItem: MediaMetadataCompat): MutableList<MediaMetadataCompat> {
         val albumMetadata = MediaMetadataCompat.Builder().apply {
             id = mediaItem.album.urlEncoded

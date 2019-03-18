@@ -11,9 +11,6 @@ import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.upstream.DataSource
 
-/**
- * Useful extensions for [MediaMetadataCompat].
- */
 inline val MediaMetadataCompat.id get() = getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
 
 inline val MediaMetadataCompat.title get() = getString(MediaMetadataCompat.METADATA_KEY_TITLE)
@@ -91,18 +88,10 @@ inline val MediaMetadataCompat.mediaUri
 inline val MediaMetadataCompat.downloadStatus
     get() = getLong(MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS)
 
-/**
- * Custom property for storing whether a [MediaMetadataCompat] item represents an
- * item that is [MediaItem.FLAG_BROWSABLE] or [MediaItem.FLAG_PLAYABLE].
- */
 @MediaItem.Flags
 inline val MediaMetadataCompat.flag
     @SuppressLint("WrongConstant")
     get() = this.getLong(METADATA_KEY_UAMP_FLAGS).toInt()
-
-/**
- * Useful extensions for [MediaMetadataCompat.Builder].
- */
 
 // These do not have getters, so create a message for the error.
 const val NO_GET = "Property does not have a 'get'"
@@ -219,10 +208,6 @@ inline var MediaMetadataCompat.Builder.downloadStatus: Long
         putLong(MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS, value)
     }
 
-/**
- * Custom property for storing whether a [MediaMetadataCompat] item represents an
- * item that is [MediaItem.FLAG_BROWSABLE] or [MediaItem.FLAG_PLAYABLE].
- */
 @MediaItem.Flags
 inline var MediaMetadataCompat.Builder.flag: Int
     @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
@@ -232,32 +217,19 @@ inline var MediaMetadataCompat.Builder.flag: Int
         putLong(METADATA_KEY_UAMP_FLAGS, value.toLong())
     }
 
-/**
- * Custom property for retrieving a [MediaDescriptionCompat] which also includes
- * all of the keys from the [MediaMetadataCompat] object in its extras.
- *
- * These keys are used by the ExoPlayer MediaSession extension when announcing metadata changes.
- */
+
 inline val MediaMetadataCompat.fullDescription
     get() =
         description.also {
             it.extras?.putAll(bundle)
         }
 
-/**
- * Extension method for building an [ExtractorMediaSource] from a [MediaMetadataCompat] object.
- *
- * For convenience, place the [MediaDescriptionCompat] into the tag so it can be retrieved later.
- */
 fun MediaMetadataCompat.toMediaSource(dataSourceFactory: DataSource.Factory) =
         ExtractorMediaSource.Factory(dataSourceFactory)
                 .setTag(fullDescription)
                 .createMediaSource(mediaUri)
 
-/**
- * Extension method for building a [ConcatenatingMediaSource] given a [List]
- * of [MediaMetadataCompat] objects.
- */
+
 fun List<MediaMetadataCompat>.toMediaSource(
         dataSourceFactory: DataSource.Factory
 ): ConcatenatingMediaSource {
@@ -269,8 +241,4 @@ fun List<MediaMetadataCompat>.toMediaSource(
     return concatenatingMediaSource
 }
 
-/**
- * Custom property that holds whether an item is [MediaItem.FLAG_BROWSABLE] or
- * [MediaItem.FLAG_PLAYABLE].
- */
 const val METADATA_KEY_UAMP_FLAGS = "com.example.android.uamp.media.METADATA_KEY_UAMP_FLAGS"

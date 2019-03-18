@@ -1,18 +1,14 @@
 package com.softwarefactory.musicplayerexample
 
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.ListAdapter
 import com.bumptech.glide.Glide
 import com.softwarefactory.musicplayerexample.MediaItemData.Companion.PLAYBACK_RES_CHANGED
-import kotlinx.android.synthetic.main.fragment_mediaitem.view.albumbArt
-import kotlinx.android.synthetic.main.fragment_mediaitem.view.item_state
-import kotlinx.android.synthetic.main.fragment_mediaitem.view.subtitle
-import kotlinx.android.synthetic.main.fragment_mediaitem.view.title
+import kotlinx.android.synthetic.main.fragment_mediaitem.view.*
 
 class MediaItemAdapter(private val itemClickedListener: (MediaItemData) -> Unit
 ) : ListAdapter<MediaItemData, MediaViewHolder>(MediaItemData.diffCallback) {

@@ -1,40 +1,28 @@
 package com.softwarefactory.mmedia
 
 import android.app.PendingIntent
-import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import androidx.core.app.NotificationManagerCompat
-import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import androidx.media.MediaBrowserServiceCompat
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import com.softwarefactory.mmedia.extensions.flag
-import com.softwarefactory.mmedia.library.BrowseTree
-import com.softwarefactory.mmedia.library.JsonSource
-import com.softwarefactory.mmedia.library.MusicSource
-import com.softwarefactory.mmedia.library.UAMP_BROWSABLE_ROOT
-import com.softwarefactory.mmedia.library.UAMP_EMPTY_ROOT
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.ExoPlayerFactory
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.Timeline
+import androidx.core.app.NotificationManagerCompat
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
+import com.softwarefactory.mmedia.extensions.flag
+import com.softwarefactory.mmedia.library.*
 
 class MusicService : androidx.media.MediaBrowserServiceCompat() {
     private lateinit var mediaSession: MediaSessionCompat

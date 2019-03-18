@@ -17,10 +17,6 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.upstream.DataSource
-
-/**
- * Class to bridge UAMP to the ExoPlayer MediaSession extension.
- */
 class UampPlaybackPreparer(
     private val musicSource: MusicSource,
     private val exoPlayer: ExoPlayer,
